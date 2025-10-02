@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "mouse.h": "c",
+        "string.h": "c",
+        "stdint.h": "c",
+        "keyboard.h": "c",
+        "fb.h": "c",
+        "limine.h": "c",
+        "fat32.h": "c",
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "io.h": "c",
+        "fprint.h": "c",
+        "libsync.h": "c"
+    }
+}
