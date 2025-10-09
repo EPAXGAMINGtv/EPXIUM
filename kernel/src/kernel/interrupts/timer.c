@@ -41,13 +41,13 @@ void sleep(uint64_t ticks) {
 }
 
 void sleep_ms(uint64_t ms){
-    uint64_t miliseconds = 1000000;
+    uint64_t miliseconds = 100000;
     uint64_t result  = miliseconds * ms ; 
     sleep(result);
 }
 
 void sleep_s(uint64_t seconds){
-    uint64_t Seconds = 10000000;
+    uint64_t Seconds = 5000000;
     uint64_t result = Seconds * seconds;
     sleep(Seconds);
 }

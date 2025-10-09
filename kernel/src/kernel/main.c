@@ -4,8 +4,7 @@
 #include "kernel/device/display/fb.h"       
 #include "kernel/device/display/colors.h"    
 #include "kernel/device/display/fprint.h"    
-#include "kernel/device/display/cursor.h"    
-#include "kernel/basic/wait.h"               
+#include "kernel/device/display/cursor.h"            
 #include "kernel/device/keyboard/keyboard.h" 
 #include "kernel/operator/shutdown.h"        
 #include "kernel/io/io.h"                    
@@ -14,6 +13,7 @@
 #include "kernel/interrupts/idt.h"
 #include "kernel/interrupts/timer.h"
 #include "kernel/interrupts/pic.h"
+#include "kernel/device/keyboard/scancode_table_de.h"
 
 
 #define SHELL_MAX_INPUT 128  
@@ -218,17 +218,16 @@ static void shell_handle_key(char c) {
 }
 
 static void update_cursor_blink() {
-    blink_counter++;
-    if (blink_counter >= CURSOR_BLINK_LOOPS) {
-        blink_counter = 0;
-        if (cursor_visible) {
-            clear_cursor_lim(framebuffer, shell_cursor);
-            cursor_visible = 0;
-        } else {
-            render_cursor_lim(framebuffer, shell_cursor, color);
-            cursor_visible = 1;
-        }
+    sleep_ms(2);
+    blink_counter = 0;
+    if (cursor_visible) {
+        clear_cursor_lim(framebuffer, shell_cursor);
+        cursor_visible = 0;
+    } else {
+        render_cursor_lim(framebuffer, shell_cursor, color);
+        cursor_visible = 1;
     }
+    
 }
 
 static void shell_run() {
@@ -239,6 +238,7 @@ static void shell_run() {
         if (keyboard_getchar(&c))
             shell_handle_key(c);  
 
+        
         update_cursor_blink();  
     }
 }
@@ -248,16 +248,14 @@ void init_interrupts(void){
     gdt_init();
     idt_init();
     pic_init();
-outb(0xFE, PIC1_DATA);  // Unmask IRQ0 (Timer) on PIC1
-outb(0xFF, PIC2_DATA);  // Keep IRQs masked on PIC2
+    outb(0xFE, PIC1_DATA);  
+    outb(0xFF, PIC2_DATA);  
 
     timer_init();
     __asm__ volatile("sti");
 }
 
-
-void kmain(void) {
-
+void fb_init(void){
     framebuffer = framebuffer_request.response->framebuffers[0];  
     fb_width = framebuffer->width;
     fb_height = framebuffer->height;
@@ -266,25 +264,26 @@ void kmain(void) {
     shell_cursor = &shell_cursor_struct;  
     shell_cursor->y = 70; 
     init_fprint_global(framebuffer, shell_cursor, color);
-    init_interrupts();
+}
 
-
+void printInterruptstatus(void){
     uint16_t flags;
     asm volatile("pushf; pop %0" : "=rm"(flags));  
     if (flags & (1 << 9)) {
-    fprint("Interrupts are activated.\n");
+    fprint("Interrupts are activated [OK]\n");
     } else {
-    fprint("Interrupts are deactivated.\n");
+    fprint("Interrupts are deactivated [ERROR]\n");
     }
+}
 
-    sleep_s(2);
-
+void kmain(void) {
+  
+    fb_init();
+    init_interrupts();
+    //printInterruptstatus();
     draw_boot_logo_lim(framebuffer, fb_height / 4, "EPXIUM", COLOR_NEON_GREEN, 30, 
                        "This is EPXIUM, a homemade OS by EPAXGAMING", COLOR_NEON_GREEN);
-
     shell_clear_screen();
-    
     keyboard_init();  
-    
     shell_run();
 }

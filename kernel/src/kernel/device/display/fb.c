@@ -1,6 +1,6 @@
 #include "fb.h"
 #include "kernel/font8x8/font8x8_basic.h"
-#include "kernel/basic/wait.h"
+#include "kernel/interrupts/timer.h"
 #include <stdint.h>
 
 
@@ -144,6 +144,6 @@ void draw_boot_logo_lim(volatile struct limine_framebuffer* fb, int start_y,
 
     for (int i = 0; i < max_dots; i++) {
         draw_square_lim(fb, start_x_dots + i * dot_spacing, dot_y, dot_size, text_color);
-        wait_seconds(1);
+        sleep_ms(20);
     }
 }

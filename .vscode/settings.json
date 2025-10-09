@@ -11,6 +11,7 @@
         "cstdint": "cpp",
         "io.h": "c",
         "fprint.h": "c",
-        "libsync.h": "c"
+        "libsync.h": "c",
+        "shutdown.h": "c"
     }
 }
