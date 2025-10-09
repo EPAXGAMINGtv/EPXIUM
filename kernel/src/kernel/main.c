@@ -9,9 +9,11 @@
 #include "kernel/device/keyboard/keyboard.h" 
 #include "kernel/operator/shutdown.h"        
 #include "kernel/io/io.h"                    
-#include "kernel/filesystem/FAT32/fat32.h"
 #include "kernel/device/mouse/mouse.h"       
-
+#include "kernel/interrupts/gdt.h"
+#include "kernel/interrupts/idt.h"
+#include "kernel/interrupts/timer.h"
+#include "kernel/interrupts/pic.h"
 
 
 #define SHELL_MAX_INPUT 128  
@@ -127,7 +129,7 @@ static void shell_backspace() {
 
 
 static void shell_print_prompt() {
-    const char* prompt = "<os $> :";  
+    const char* prompt = "<EPXIUM> :";  
     for (int i = 0; prompt[i]; i++)
         put_char_with_cursor_lim(framebuffer, shell_cursor, prompt[i], color);  
 }
@@ -153,16 +155,25 @@ static void shell_execute_command(const char* cmd) {
         shell_clear_screen();  
     } else if (strcmp(cmd, "reboot") == 0) {
         fprint("Rebooting in 3 seconds...\n");
-        wait_seconds(2);  
+        sleep_s(2);  
         fprint("Rebooting in 2 seconds...\n");
-        wait_seconds(2);  
+        sleep_s(2);  
         fprint("Rebooting in 1 second...\n");
-        wait_seconds(2);  
+        sleep_s(2);  
         outb(0x64, 0xFE);  
         for (;;) __asm__ volatile("hlt");
     } else if (strcmp(cmd, "shutdown") == 0) {
-        fprint("Shutting down in 5 seconds!\n");
-        wait_seconds(5);  
+        fprint("5\n");
+        sleep_s(1);
+        fprint("4\n");
+        sleep_s(1);
+        fprint("3\n");
+        sleep_s(1);
+        fprint("2\n");
+        sleep_s(1);
+        fprint("1\n");
+        sleep_s(1);
+        fprint("shutdown\n");
         shutdown();  
         for (;;) __asm__ volatile("hlt");  
     } else if (strcmp(cmd, "version") == 0) {
@@ -176,57 +187,7 @@ static void shell_execute_command(const char* cmd) {
         render_matrix();
         time++;
         }
-    }else if (strcmp(cmd, "printfile") == 0) {
-    uint8_t buffer[512];  
-    uint8_t filename[11];
-    int is_dir;
-
-    uint32_t parent_cluster = fat32_resolve_path((uint8_t*)"sysroot/test.txt", filename, &is_dir);
-    if (parent_cluster == 0 || is_dir) {
-        fprint("Datei nicht gefunden oder ist ein Verzeichnis\n");
-        return;
     }
-
-    uint32_t current_cluster = parent_cluster;
-    uint32_t next_cluster;
-    size_t total_read = 0;
-    size_t bytes_read = 0;
-
-    while (current_cluster < 0x0FFFFFF8) {
-        size_t remaining = sizeof(buffer) - total_read;
-        if (remaining == 0) break;
-
-        bytes_read = fat32_read(current_cluster, buffer + total_read, remaining);
-        if (bytes_read == 0) {
-            fprint("Fehler beim Lesen der Datei oder Ende der Datei erreicht\n");
-            break; 
-        }
-
-        fprint("Gelesene Bytes: ");
-        fprint("\n");
-
-        total_read += bytes_read;
-
-        next_cluster = fat32_get_next_cluster(current_cluster);
-        fprint("\n");
-
-        if (next_cluster == 0) {
-            fprint("Ende der Clusterverkettung erreicht\n");
-            break;
-        }
-
-        current_cluster = next_cluster;
-    }
-
-    if (total_read > 0) {
-        buffer[total_read] = '\0';  
-        fprint("Gelesene Datei:\n");
-        fprint((char*)buffer);  
-    } else {
-        fprint("Die Datei ist leer oder konnte nicht gelesen werden\n");
-    }
-}
-
 
       else if (strlen(cmd) > 0) {
         fprint("Unknown command: ");
@@ -283,17 +244,30 @@ static void shell_run() {
 }
 
 
+void init_interrupts(void){
+    gdt_init();
+    idt_init();
+    pic_init();
+outb(0xFE, PIC1_DATA);  // Unmask IRQ0 (Timer) on PIC1
+outb(0xFF, PIC2_DATA);  // Keep IRQs masked on PIC2
+
+    timer_init();
+    __asm__ volatile("sti");
+}
+
 
 void kmain(void) {
+
     framebuffer = framebuffer_request.response->framebuffers[0];  
     fb_width = framebuffer->width;
     fb_height = framebuffer->height;
 
     init_cursor(&shell_cursor_struct, fb_width-2, fb_height-10);  
     shell_cursor = &shell_cursor_struct;  
-    shell_cursor->y = 70;  
-
+    shell_cursor->y = 70; 
     init_fprint_global(framebuffer, shell_cursor, color);
+    init_interrupts();
+
 
     uint16_t flags;
     asm volatile("pushf; pop %0" : "=rm"(flags));  
@@ -303,20 +277,13 @@ void kmain(void) {
     fprint("Interrupts are deactivated.\n");
     }
 
-
-    fprint("Before enabling interrupts\n");
-    asm volatile("cli");
-    fprint("Interrupts disabled, proceeding with initialization\n");
-    
+    sleep_s(2);
 
     draw_boot_logo_lim(framebuffer, fb_height / 4, "EPXIUM", COLOR_NEON_GREEN, 30, 
                        "This is EPXIUM, a homemade OS by EPAXGAMING", COLOR_NEON_GREEN);
 
     shell_clear_screen();
     
-
-
-
     keyboard_init();  
     
     shell_run();
