@@ -17,7 +17,6 @@ void timer_init(void){
     uint16_t divisor = PIT_FREQUENCY /100;
     outb(divisor & 0xFF, PIT_DATA_PORT);  
     outb((divisor >> 8) & 0xFF, PIT_DATA_PORT);
-    fprint("timer initzialzed [OK]\n");
 }
 
 void handle_timer(void){

@@ -26,5 +26,4 @@ void gdt_init(void) {
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);  
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);  
     __asm__ volatile("lgdt (%0)" : : "r" (&gdt_ptr));
-    fprint("gdt initzialed [OK]\n");
 }

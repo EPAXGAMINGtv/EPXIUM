@@ -2,6 +2,7 @@
 #include "gdt.h"  
 #include "timer.h"
 #include "../device/display/fprint.h"
+#include "isr.h"
 
 #define IDT_ENTRIES 256
 
@@ -9,6 +10,7 @@ idt_entry_t idt[IDT_ENTRIES];
 idt_ptr_t idt_ptr;
 
 extern void handle_timer(void);
+extern void isr_exception_handler(void); 
 
 void idt_set_gate(int n, uint64_t handler, uint16_t selector, uint8_t type_attr) {
     idt[n].offset_low = handler & 0xFFFF;
@@ -33,14 +35,7 @@ void idt_init(void) {
     }
     extern void handler_divide_by_zero(void);
     idt_set_gate(32, (uint64_t)handle_timer, 0x08, 0x8E);
-    idt_set_gate(0, (uint64_t)handler_divide_by_zero, 0x08, 0x8E); 
+  idt_set_gate(0, (uint64_t)isr_exception_handler, 0x08, 0x8E);
     lidt(&idt_ptr);
-    fprint("idt initzialzed [OK]\n");
-}
-
-void handler_divide_by_zero(void) {
-    for (;;) {
-        __asm__ volatile("hlt");  
-    }
 }
 

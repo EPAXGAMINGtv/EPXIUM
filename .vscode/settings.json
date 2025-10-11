@@ -12,6 +12,12 @@
         "io.h": "c",
         "fprint.h": "c",
         "libsync.h": "c",
-        "shutdown.h": "c"
+        "shutdown.h": "c",
+        "irq.h": "c",
+        "mem_alloc.h": "c",
+        "cstdlib": "c",
+        "stddef.h": "c",
+        "pmm.h": "c",
+        "vmm.h": "c"
     }
 }

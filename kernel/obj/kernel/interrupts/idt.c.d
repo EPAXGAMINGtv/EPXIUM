@@ -1,6 +1,7 @@
 obj/kernel/interrupts/idt.c.o: src/kernel/interrupts/idt.c \
  src/kernel/interrupts/idt.h src/kernel/interrupts/gdt.h \
- src/kernel/interrupts/timer.h \
+ src/kernel/interrupts/timer.h src/kernel/interrupts/isr.h \
+ src/kernel/interrupts/irq.h \
  src/kernel/interrupts/../device/display/fprint.h \
  src/kernel/interrupts/../device/display/cursor.h \
  src/kernel/interrupts/../device/display/fb.h src/limine.h \
@@ -8,6 +9,8 @@ obj/kernel/interrupts/idt.c.o: src/kernel/interrupts/idt.c \
 src/kernel/interrupts/idt.h:
 src/kernel/interrupts/gdt.h:
 src/kernel/interrupts/timer.h:
+src/kernel/interrupts/isr.h:
+src/kernel/interrupts/irq.h:
 src/kernel/interrupts/../device/display/fprint.h:
 src/kernel/interrupts/../device/display/cursor.h:
 src/kernel/interrupts/../device/display/fb.h:

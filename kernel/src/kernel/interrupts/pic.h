@@ -15,5 +15,7 @@
 
 void pic_init(void);
 void pic_send_eoi(uint8_t irq);
+void pic_send_command(uint16_t port, uint8_t cmd);
+void pic_send_data(uint16_t port, uint8_t data);
 
 #endif

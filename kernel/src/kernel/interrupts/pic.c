@@ -18,7 +18,6 @@ void pic_init(void){
     outb(0xFF,PIC1_DATA);
     outb(0xFF,PIC2_DATA);
     
-    fprint("pic initzialzed [OK]\n");
 }
 
 void pic_send_eoi(uint8_t irq) {
@@ -26,4 +25,13 @@ void pic_send_eoi(uint8_t irq) {
         outb(0x20, PIC2_CMD); 
     }
     outb(0x20, PIC1_CMD); 
+}
+
+
+void pic_send_command(uint16_t port, uint8_t cmd) {
+    outb(port, cmd);
+}
+
+void pic_send_data(uint16_t port, uint8_t data) {
+    outb(port, data);
 }

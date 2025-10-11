@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <stdint.h>
+#include "isr.h"
 
 void timer_init(void);
 void handle_timer(void);

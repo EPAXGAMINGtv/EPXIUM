@@ -20,3 +20,16 @@ void fprint(const char* text) {
         ptr++;
     }
 }
+
+void fprintcolor(const char* text,uint32_t colooor){
+        const char* ptr = text;
+    while (*ptr) {
+        if (*ptr == '\n') {
+            g_printer.cursor->x = 0;
+            g_printer.cursor->y += g_printer.cursor->char_height;
+        } else {
+            put_char_with_cursor_lim(g_printer.fb, g_printer.cursor, *ptr, colooor);
+        }
+        ptr++;
+    }
+}

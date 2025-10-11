@@ -34,7 +34,8 @@ CFLAGS += \
     -fno-stack-protector -fno-stack-check -fno-PIC \
     -ffunction-sections -fdata-sections \
     -m64 -march=x86-64 -mno-80387 -mno-mmx -mno-sse -mno-sse2 -mno-red-zone \
-    -mcmodel=kernel
+    -mcmodel=kernel \
+	-mno-sse -mfpmath=sse
 
 CPPFLAGS += -I src -isystem freestnd-c-hdrs -DLIMINE_API_REVISION=3 -MMD -MP
 NASMFLAGS += -Wall -f elf64
