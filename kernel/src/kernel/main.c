@@ -15,7 +15,8 @@
 #include "kernel/interrupts/isr.h"
 #include "kernel/mem/pmm.h"
 #include "kernel/mem/vmm.h"
-
+#include "kernel/interrupts/drivers/keyboard.h"
+#include "kernel/kernel_lib/random.h"
 
 
 #define SHELL_MAX_INPUT 128  
@@ -72,6 +73,18 @@ static void itoa(size_t value, char* str) {
     }
 }
 
+void test_calc(){
+    uint32_t num1 = random_u32();
+    uint32_t num2 = random_u32();
+    fprint_uint(num1);
+    fprint(" + ");
+    fprint_uint(num2);
+    uint32_t end = num1+num2;
+    fprint(" = ");
+    fprint_uint(end);
+      fprint("\n");
+}
+
 
 void print_logo(){
     fprint("EEEEE   PPPPP   XX    XX    IIIIII     UU    UU   MM   MM\n");
@@ -116,13 +129,25 @@ void init_interrupts(void){
     outb(0xFE, PIC1_DATA);  
     outb(0xFF, PIC2_DATA);  
     printOK("pic initzialized ");
-    printOK("timer init ");
 
+    printOK("init irq ");
     irq_init();
+    printOK("irq initzialized ");
 
+    printOK("init timer");
     timer_init();
     printOK("timer initzialized");
+    
+    printOK("init isr ");
     isr_init();
+    printOK("isr initzialized ");
+
+    printOK("init keyboard driver ");
+    printOK("init keyboard interrupt ");
+    printOK("clearing keyboard buffer ");
+    init_keyboard();
+    printOK("keyboard initzialized ");
+
     __asm__ volatile("sti");
     printOK("interrupts init completet");
 }
@@ -184,23 +209,66 @@ void init_mem(void){
     printOK("RAM TEST WAS SUCCESFULL ");
 }
 
+void init_kernel_lib(){
+    printOK("init random"); 
+    fprint("with: ");
+    fprint_uint((uint32_t)get_tick_count());
+    fprint(" ticks \n");
+    random_init(get_tick_count());
+    printOK("random init completetet ");
+    fprint("during 500 test calculations in 5 seconds\n");
+
+    for (int i = 5; i >0; i--) {
+        sleep_s(1);  
+        fprint_uint((uint32_t)i);  
+        fprint("\n");
+    }
+
+    for (int i = 0; i < 500; i++) {
+        test_calc();
+    }
+
+} 
+
 void test_divide_by_zero(void) {
     int a = 10;
     int b = 0;
-    int c = a / b;  // Diese Zeile wird die Division durch Null auslösen und den Handler aktivieren
+    int c = a / b;  
 }
 
-void kmain(void) {
-  
+void kernel_init(void){
     fb_init();
-    
+    printOK("starting kernel init ");
     init_interrupts();
     //init_mem();
 
     int x = 1 / 0;
+    switch_layout(LAYOUT_DE);
+
+    //unessential init
+    init_kernel_lib();
+
+    
+    sleep_s(1);
+    fprint("\n");
+    printOK("kernel init completet ");
+    sleep_s(5);
+    clear_screen_lim(framebuffer,COLOR_DARK_GRAY);
+}
+
+
+void kmain(void) {
+    
+    kernel_init();
+    
     
     
     while (1) {
-        
+       /*if(key_is_pressed(0x1C)){
+            fprint("\nA pressed \n");
+       } 
+        */
+      
+       __asm__ volatile ("pause");
     }
 }

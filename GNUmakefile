@@ -74,7 +74,7 @@ kernel-deps:
 kernel: kernel-deps
 	$(MAKE) -C kernel
 
-# Build ISO with FAT32 filesystem and sysroot files
+# Build ISO without iso_root.img
 $(IMAGE_NAME).iso: limine/limine kernel
 	rm -rf iso_root
 	mkdir -p iso_root/boot
@@ -85,20 +85,11 @@ $(IMAGE_NAME).iso: limine/limine kernel
 	cp -v limine/BOOTX64.EFI iso_root/EFI/BOOT/
 	cp -v limine/BOOTIA32.EFI iso_root/EFI/BOOT/
 
-	# Create FAT32 partition image (iso_root.img) with 64MB size
-	dd if=/dev/zero bs=1M count=0 seek=64 of=iso_root.img
-	mkfs.fat -F 32 iso_root.img
-
-	# Mount the image and copy sysroot directory into it
-	sudo mount -o loop iso_root.img /mnt || { echo "Mount failed"; exit 1; }
-	sudo mkdir -p /mnt/sysroot  # Create sysroot directory in the mounted image
-	sudo cp -r sysroot/* /mnt/sysroot/  # Copy all content from sysroot to /mnt/sysroot
-	sudo umount /mnt
-
-	# Add the FAT32 image (iso_root.img) to the ISO as a separate file
-	cp iso_root.img iso_root/
-
-	# Create the ISO image with the FAT32 partition (iso_root.img)
+	# Copy sysroot directory directly into the iso_root (no FAT32 partition needed)
+	sudo mkdir -p /mnt/sysroot
+	sudo cp -r sysroot/* /mnt/sysroot/
+	
+	# Create the ISO image without creating iso_root.img
 	xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
 		-apm-block-size 2048 --efi-boot boot/limine/limine-uefi-cd.bin \
@@ -110,6 +101,7 @@ $(IMAGE_NAME).iso: limine/limine kernel
 
 	# Clean up
 	rm -rf iso_root
+
 
 $(IMAGE_NAME).hdd: limine/limine kernel
 	rm -f $(IMAGE_NAME).hdd

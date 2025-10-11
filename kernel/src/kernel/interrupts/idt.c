@@ -10,7 +10,9 @@ idt_entry_t idt[IDT_ENTRIES];
 idt_ptr_t idt_ptr;
 
 extern void handle_timer(void);
-extern void isr_exception_handler(void); 
+extern void exception_handler_divide_by_zero(void); 
+extern void  exception_handler_page_fault();
+extern void   keyboard_isr(void);
 
 void idt_set_gate(int n, uint64_t handler, uint16_t selector, uint8_t type_attr) {
     idt[n].offset_low = handler & 0xFFFF;
@@ -33,9 +35,10 @@ void idt_init(void) {
     for (int i = 0; i < IDT_ENTRIES; i++) {
         idt_set_gate(i, 0, 0, 0);
     }
-    extern void handler_divide_by_zero(void);
-    idt_set_gate(32, (uint64_t)handle_timer, 0x08, 0x8E);
-  idt_set_gate(0, (uint64_t)isr_exception_handler, 0x08, 0x8E);
+    idt_set_gate(32, (uint64_t)handle_timer, 0x08, 0x8E);  
+    idt_set_gate(33, (uint64_t)keyboard_isr, 0x08, 0x8E);  
+    idt_set_gate(0, (uint64_t)exception_handler_divide_by_zero, 0x08, 0x8E);  
+    idt_set_gate(14, (uint64_t)exception_handler_page_fault, 0x08, 0x8E);
     lidt(&idt_ptr);
 }
 

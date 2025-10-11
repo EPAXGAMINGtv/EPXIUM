@@ -50,3 +50,7 @@ void sleep_s(uint64_t seconds){
     uint64_t result = Seconds * seconds;
     sleep(Seconds);
 }
+
+uint64_t get_tick_count(){
+    return tick_count;
+}

@@ -18,6 +18,8 @@
         "cstdlib": "c",
         "stddef.h": "c",
         "pmm.h": "c",
-        "vmm.h": "c"
+        "vmm.h": "c",
+        "stdbool.h": "c",
+        "timer.h": "c"
     }
 }

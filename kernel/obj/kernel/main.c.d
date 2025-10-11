@@ -7,7 +7,8 @@ obj/kernel/main.c.o: src/kernel/main.c src/limine.h \
  src/kernel/interrupts/idt.h src/kernel/interrupts/timer.h \
  src/kernel/interrupts/isr.h src/kernel/interrupts/irq.h \
  src/kernel/interrupts/pic.h src/kernel/interrupts/irq.h \
- src/kernel/interrupts/isr.h src/kernel/mem/pmm.h src/kernel/mem/vmm.h
+ src/kernel/interrupts/isr.h src/kernel/mem/pmm.h src/kernel/mem/vmm.h \
+ src/kernel/interrupts/drivers/keyboard.h src/kernel/kernel_lib/random.h
 src/limine.h:
 src/kernel/device/display/fb.h:
 src/kernel/device/display/colors.h:
@@ -28,3 +29,5 @@ src/kernel/interrupts/irq.h:
 src/kernel/interrupts/isr.h:
 src/kernel/mem/pmm.h:
 src/kernel/mem/vmm.h:
+src/kernel/interrupts/drivers/keyboard.h:
+src/kernel/kernel_lib/random.h:
