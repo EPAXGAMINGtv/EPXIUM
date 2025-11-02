@@ -2,28 +2,32 @@
 #define VMM_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include <limine.h>
 
 #define PAGE_SIZE 4096
-#define PAGE_TABLE_ENTRIES 512
+#define KERNEL_HEAP_START 0xE0000000
+#define KENERL_HEAP_SIZE  0x2000000
 
-typedef struct {
-    uint64_t present : 1;
-    uint64_t writable : 1;
-    uint64_t user : 1;
-    uint64_t write_through : 1;
-    uint64_t cache_disable : 1;
-    uint64_t accessed : 1;
-    uint64_t dirty : 1;
-    uint64_t huge_page : 1;
-    uint64_t global : 1;
-    uint64_t reserved : 3;
-    uint64_t address : 40;
-    uint64_t reserved2 : 12;
-} page_table_entry_t;
+typedef uint64_t pte_t;
+typedef uint64_t pde_t;
 
-void vmm_init(void);
-void vmm_map_page(uint64_t virt_addr, uint64_t phys_addr, uint64_t flags);
-void vmm_unmap_page(uint64_t virt_addr);
-void vmm_set_active_pml4(uint64_t pml4_phys_addr);
+typedef struct vmm_page_table{
+    pte_t *entries;
+    size_t size;
+
+}vmm_page_table_t;
+
+void vmm_init(struct limine_memmap_response* memap);
+void *vmm_alloc_page(void);
+void vmm_free_page(void * addr);
+void * vmm_map_page(void * virt, void * phys);
+void vmm_unmap_page(void* virt);
+void vmm_load_page_table(vmm_page_table_t *page_table);
+
+//helper functions
+static inline void set_pte(pte_t *entry, uintptr_t phys_addr, uint64_t flags);
+static inline uintptr_t get_phys_addr_from_pte(pte_t *entry);
+
 
 #endif

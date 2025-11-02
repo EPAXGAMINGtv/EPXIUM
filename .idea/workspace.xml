@@ -5,44 +5,49 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b9de959f-12a2-48fb-b848-73218f4b227b" name="Changes" comment="update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/iso_root.img" beforeDir="false" afterPath="$PROJECT_DIR$/iso_root.img" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/GNUmakefile" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/GNUmakefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/bin/kernel" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/bin/kernel" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/cc-runtime/cc-runtime.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/cc-runtime/cc-runtime.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/cursor.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/device/display/cursor.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fb.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fb.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fprint.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fprint.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/keyboard/keyboard.c.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/keyboard/keyboard.c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/keyboard/ringbuffer.c.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/keyboard/ringbuffer.c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/mouse/mouse.c.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/mouse/mouse.c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/gdt.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/gdt.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/idt.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/idt.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/pic.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/pic.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/timer.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/timer.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/main.c.d" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/main.c.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/main.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/obj/kernel/main.c.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/display/fprint.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/device/display/fprint.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/display/fprint.h" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/device/display/fprint.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/keyboard/keyboard.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/keyboard/keyboard.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/keyboard/ringbuffer.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/keyboard/ringbuffer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/keyboard/scancode_table_de.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/mouse/mouse.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/device/mouse/mouse.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/interrupts/gdt.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/interrupts/gdt.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/interrupts/idt.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/interrupts/idt.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/interrupts/pic.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/interrupts/pic.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/interrupts/pic.h" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/interrupts/pic.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/interrupts/timer.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/interrupts/timer.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/io/io.h" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/io/io.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/bin/kernel" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/cc-runtime/cc-runtime.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/cc-runtime/cc-runtime.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/cursor.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/cursor.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fb.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fb.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fprint.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/device/display/fprint.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/drivers/keyboard.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/drivers/keyboard.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/gdt.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/gdt.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/idt.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/idt.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/irq.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/irq.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/isr.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/isr.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/isr_exception_handler.asm.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/pic.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/pic.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/timer.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/interrupts/timer.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/kernel_lib/math.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/kernel_lib/math.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/kernel_lib/random.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/kernel_lib/random.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/main.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/main.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/mem/pmm.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/mem/pmm.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/mem/vmm.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/mem/vmm.c.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/util/util.c.d" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/obj/kernel/util/util.c.o" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/kernel/src/kernel/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/template.iso" beforeDir="false" afterPath="$PROJECT_DIR$/template.iso" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/mem/pmm.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/mem/pmm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/mem/pmm.h" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/mem/pmm.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/mem/vmm.c" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/mem/vmm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kernel/src/kernel/mem/vmm.h" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/src/kernel/mem/vmm.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qemu_debug.txt" beforeDir="false" afterPath="$PROJECT_DIR$/qemu_debug.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/template.iso" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +60,7 @@
         <entry key="$PROJECT_DIR$/kernel/freestnd-c-hdrs" value="a87c192f3eb66b0806740dc67325f9ad23fc2d0b" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/kernel/freestnd-c-hdrs" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -78,16 +83,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/epaxgaming/Schreibtisch/EPXIUM&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "git-widget-placeholder": "a87c192f",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/epaxgaming/Schreibtisch/epx-client"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="EPXIUM" />

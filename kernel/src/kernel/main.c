@@ -15,6 +15,7 @@
 #include "kernel/interrupts/isr.h"
 #include "kernel/mem/pmm.h"
 #include "kernel/mem/vmm.h"
+#include "kernel/mem/kmalloc.h"
 #include "kernel/interrupts/drivers/keyboard.h"
 #include "kernel/kernel_lib/random.h"
 
@@ -36,6 +37,12 @@ uint32_t color = COLOR_WHITE;
 __attribute__((used, section(".limine_requests")))
 volatile struct limine_framebuffer_request framebuffer_request = {
     .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .revision = 0
+};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_memmap_request memmap_request = {
+    .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
 };
 
@@ -87,14 +94,14 @@ void test_calc(){
 
 
 void print_logo(){
-    fprint("EEEEE   PPPPP   XX    XX    IIIIII     UU    UU   MM   MM\n");
-    fprint("EE      PP  PP    XX XX       II       UU    UU   MMM MMM\n");
-    fprint("EEEE    PPPPP      XX         II       UU    UU   MM M MM\n");
-    fprint("EE      PP        XX XX       II       UU    UU   MM   MM\n");
-    fprint("EEEEE   PP      XX    XX    IIIIII       UUUUU    MM   MM\n");
-    fprint("---------------------------------------------------------\n");
+    fprintcolor("EEEEE   PPPPP   XX    XX    IIIIII     UU    UU   MM   MM\n",COLOR_GREEN);
+    fprintcolor("EE      PP  PP    XX XX       II       UU    UU   MMM MMM\n",COLOR_GREEN);
+    fprintcolor("EEEE    PPPPP      XX         II       UU    UU   MM M MM\n",COLOR_GREEN);
+    fprintcolor("EE      PP        XX XX       II       UU    UU   MM   MM\n",COLOR_GREEN);
+    fprintcolor("EEEEE   PP      XX    XX    IIIIII       UUUUU    MM   MM\n",COLOR_GREEN);
+    fprintcolor("---------------------------------------------------------\n",COLOR_GREEN);
     fprint("\n");
-    fprint("---------------------------------------------------------\n");
+    fprintcolor("---------------------------------------------------------\n",COLOR_GREEN);
     fprint("\n");
 
 }
@@ -166,47 +173,9 @@ void fb_init(void){
 }
 
 void init_mem(void){
-   printOK("initing pmm ");
-   pmm_init();
-   printOK("init pmm sucessfull ");
-
-   printOK("initing vmm ");
-   vmm_init();
-   printOK("init vmm sucessfull");
-   
-   uint64_t virt_base = 0xFFFF800010000000;
-    void* phys_pages[3];
-    uint64_t virt_addrs[3];
-
-    for (int i = 0; i < 3; i++) {
-        phys_pages[i] = pmm_alloc_page();
-        if (phys_pages[i]) {
-            virt_addrs[i] = virt_base + i * PAGE_SIZE;
-            vmm_map_page(virt_addrs[i], (uint64_t)phys_pages[i], 0x3);
-            *(uint64_t*)virt_addrs[i] = 0xDEADBEEF + i;
-        }
-    }
-
-    for (int i = 0; i < 3; i++) {
-        if (phys_pages[i]) {
-            uint64_t value = *(uint64_t*)virt_addrs[i];
-            vmm_unmap_page(virt_addrs[i]);
-            pmm_free_page(phys_pages[i]);
-        }
-    }
-
-    void* test_phys = pmm_alloc_page();
-    if (test_phys) {
-        uint64_t test_virt = virt_base + 4 * PAGE_SIZE;
-        vmm_map_page(test_virt, (uint64_t)test_phys, 0x3);
-        *(uint64_t*)test_virt = 0xCAFEBABE;
-        uint64_t read_value = *(uint64_t*)test_virt;
-        vmm_unmap_page(test_virt);
-        pmm_free_page(test_phys);
-    }
-        
-        
-    printOK("RAM TEST WAS SUCCESFULL ");
+    printOK("initing mem ");
+    struct limine_memmap_response *memmap = memmap_request.response;
+    vmm_init(memmap);
 }
 
 void init_kernel_lib(){
@@ -236,11 +205,46 @@ void test_divide_by_zero(void) {
     int c = a / b;  
 }
 
+void kmalloc_test(){
+    framebuffer = framebuffer_request.response->framebuffers[0];  
+    fb_width = framebuffer->width;
+    fb_height = framebuffer->height;
+
+    init_cursor(&shell_cursor_struct, fb_width-2, fb_height-10);  
+    shell_cursor = &shell_cursor_struct;  
+
+    void *virt = vmm_alloc_page();
+    if (virt) fprint("virtuel page got test alloc!\n");
+    void *phys = pmm_alloc_page();
+    if (phys) fprint("pmm page got test allocated!\n");
+
+    vmm_map_page(virt, phys);
+    fprint("virtuel page got mapped!\n");
+
+    vmm_free_page(virt);
+    pmm_free_page(phys);
+    fprint("all pages got freed!\n");
+    kmalloc_init();
+
+    void *a = kmalloc(512);
+    void *b = kmalloc(2048);
+    void *c = kmalloc(8192);
+
+    fprint("Allocated 3 blocks from kernel heap\n");
+
+    sleep_s(1);
+    sleep_s(1);
+    sleep_s(1);
+
+    clear_screen_lim(framebuffer,COLOR_BLACK);
+}
+
+
 void kernel_init(void){
     fb_init();
     printOK("starting kernel init ");
     init_interrupts();
-    //init_mem();
+    init_mem();
 
     int x = 1 / 0;
     switch_layout(LAYOUT_DE);
@@ -254,13 +258,21 @@ void kernel_init(void){
     printOK("kernel init completet ");
     sleep_s(5);
     clear_screen_lim(framebuffer,COLOR_DARK_GRAY);
+    kmalloc_test();
+
+    framebuffer = framebuffer_request.response->framebuffers[0];  
+    fb_width = framebuffer->width;
+    fb_height = framebuffer->height;
+
+    init_cursor(&shell_cursor_struct, fb_width-2, fb_height-10);  
+    shell_cursor = &shell_cursor_struct;  
+    print_logo();
 }
 
 
 void kmain(void) {
     
     kernel_init();
-    
     
     
     while (1) {
