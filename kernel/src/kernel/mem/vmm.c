@@ -49,7 +49,7 @@ void *vmm_alloc_page(void){
     if (!phys_addr) return NULL;
     uintptr_t virt_addr = kernel_heap_end;
     kernel_heap_end += PAGE_SIZE;
-    vmm_map_page((void*)virt_addr,phys_addr);
+    vmm_map_page((void*)virt_addr,phys_addr,0x3);
     
     return (void *)virt_addr;
 }
@@ -60,10 +60,10 @@ void vmm_free_page(void* addr){
     pmm_free_page(addr);
 }
 
-void* vmm_map_page(void *virt,void * phys){
+void* vmm_map_page(void *virt,void * phys,uint64_t flags){
     size_t virt_page = (uintptr_t)virt / PAGE_SIZE;
     size_t phys_page = (uintptr_t)phys / PAGE_SIZE;
-    set_pte(&current_page_table->entries[virt_page], phys_page * PAGE_SIZE, 0x3); 
+    set_pte(&current_page_table->entries[virt_page], phys_page * PAGE_SIZE, flags); 
 
     return virt;
 }
@@ -77,17 +77,14 @@ void vmm_unmap_page(void * virt){
 }
 
 static inline void set_pte(pte_t *entry, uintptr_t phys_addr, uint64_t flags) {
-    *entry = (phys_addr & ~0xFFF) | (flags & 0xFFF); // Setze die physischen Adressen und Flags (rechte)
+    *entry = (phys_addr & ~0xFFF) | (flags & 0xFFF); 
 }
 
-// Hole die physische Adresse aus dem PTE
 static inline uintptr_t get_phys_addr_from_pte(pte_t *entry) {
     return *entry & ~0xFFF;
 }
 
-// Lade die Page Table in das TLB (Translation Lookaside Buffer)
+
 void vmm_load_page_table(vmm_page_table_t *page_table) {
-    // Für eine vollständige Implementierung würdest du hier den CR3-Register setzen,
-    // um die Page Table für den aktuellen Prozess zu laden.
-    // Das ist in einem echten Betriebssystem notwendig, um Adressübersetzungen korrekt zu behandeln.
+    //place houlder
 }

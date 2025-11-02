@@ -15,9 +15,12 @@
 #include "kernel/interrupts/isr.h"
 #include "kernel/mem/pmm.h"
 #include "kernel/mem/vmm.h"
+#include "kernel/mem/umalloc.h"
 #include "kernel/mem/kmalloc.h"
 #include "kernel/interrupts/drivers/keyboard.h"
 #include "kernel/kernel_lib/random.h"
+#include "kernel/interrupts/tss.h"
+#include "kernel/processes/process.h"
 
 
 #define SHELL_MAX_INPUT 128  
@@ -149,6 +152,10 @@ void init_interrupts(void){
     isr_init();
     printOK("isr initzialized ");
 
+    printOK("initing TSS");
+    tss_init();
+    printOK("tss init completet! ");
+
     printOK("init keyboard driver ");
     printOK("init keyboard interrupt ");
     printOK("clearing keyboard buffer ");
@@ -177,6 +184,8 @@ void init_mem(void){
     struct limine_memmap_response *memmap = memmap_request.response;
     vmm_init(memmap);
 }
+
+
 
 void init_kernel_lib(){
     printOK("init random"); 
@@ -218,7 +227,7 @@ void kmalloc_test(){
     void *phys = pmm_alloc_page();
     if (phys) fprint("pmm page got test allocated!\n");
 
-    vmm_map_page(virt, phys);
+    vmm_map_page(virt, phys,0x3);
     fprint("virtuel page got mapped!\n");
 
     vmm_free_page(virt);
@@ -273,7 +282,7 @@ void kernel_init(void){
 void kmain(void) {
     
     kernel_init();
-    
+   // userspace_main();
     
     while (1) {
        /*if(key_is_pressed(0x1C)){

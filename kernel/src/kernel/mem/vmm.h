@@ -21,7 +21,7 @@ typedef struct vmm_page_table{
 void vmm_init(struct limine_memmap_response* memap);
 void *vmm_alloc_page(void);
 void vmm_free_page(void * addr);
-void * vmm_map_page(void * virt, void * phys);
+void * vmm_map_page(void * virt, void * phys,uint64_t flags);
 void vmm_unmap_page(void* virt);
 void vmm_load_page_table(vmm_page_table_t *page_table);
 

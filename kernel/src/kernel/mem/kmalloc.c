@@ -33,7 +33,7 @@ static void expand_heap(size_t size) {
             fprint("kmalloc: out of physical memory!\n");
             return;
         }
-        vmm_map_page((void *)heap_max, phys);
+        vmm_map_page((void *)heap_max, phys,0x3);
         heap_max += PAGE_SIZE;
     }
 }
