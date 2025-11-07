@@ -208,11 +208,7 @@ void init_kernel_lib(){
 
 } 
 
-void test_divide_by_zero(void) {
-    int a = 10;
-    int b = 0;
-    int c = a / b;  
-}
+
 
 void kmalloc_test(){
     framebuffer = framebuffer_request.response->framebuffers[0];  

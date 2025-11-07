@@ -1,4 +1,3 @@
-// idt.h
 #ifndef IDT_H
 #define IDT_H
 
@@ -14,16 +13,15 @@ typedef struct {
     uint16_t offset_mid;
     uint32_t offset_high;
     uint32_t zero;
-} idt_entry_t;
+} __attribute__((packed)) idt_entry_t;
 
 typedef struct {
     uint16_t limit;
     uint64_t base;
-} idt_ptr_t;
+} __attribute__((packed)) idt_ptr_t;
 
 void idt_set_gate(int n, uint64_t handler, uint16_t selector, uint8_t type_attr);
 void idt_init(void);
-
-extern void handler_divide_by_zero(void);  
+extern void exception_handler_divide_by_zero(void);
 
 #endif
