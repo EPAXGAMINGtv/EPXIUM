@@ -104,8 +104,13 @@ static ramfs_node_t* ramfs_find_node(const char* path, int create_missing) {
     fprint("[DEBUG] returning node\n");
     return cur;
 }
+
 void ramfs_init(void) {
     ramfs_root = kmalloc(sizeof(ramfs_node_t));
+    if (!ramfs_root) {
+        fprint("[RAMFS] ERROR: kmalloc returned NULL!\n");
+        return;
+    }
     memset(ramfs_root, 0, sizeof(ramfs_node_t));
     ramfs_root->name[0] = '\0';
     ramfs_root->type = RAMFS_DIR;
@@ -201,4 +206,29 @@ void ramfs_list_dir(const char* path) {
         fprint(dir->children[i]->type == RAMFS_DIR ? "/" : "");
         fprint("\n");
     }
+}
+
+void* ramfs_read_file_to_memory(const char* path, size_t* size) {
+    if (!path || !size) return NULL;
+
+    ramfs_node_t* node = ramfs_find_node(path, 0);
+    if (!node || node->type != RAMFS_FILE) {
+        fprint("[RAMFS] File not found or not a file: "); fprint(path); fprint("\n");
+        *size = 0;
+        return NULL;
+    }
+
+    *size = node->size;
+    void* buffer = kmalloc(*size);
+    if (!buffer) {
+        fprint("[RAMFS] Failed to allocate memory for file: "); fprint(path); fprint("\n");
+        *size = 0;
+        return NULL;
+    }
+
+    for (size_t i = 0; i < *size; i++) {
+        ((uint8_t*)buffer)[i] = (uint8_t)node->data[i];
+    }
+
+    return buffer;
 }

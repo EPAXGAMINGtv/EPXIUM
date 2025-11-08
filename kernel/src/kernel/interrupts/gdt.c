@@ -10,7 +10,7 @@ void gdt_set_gate(int n, uint32_t base, uint32_t limit, uint8_t access, uint8_t 
     gdt[n].base_low = base & 0xFFFF;
     gdt[n].base_middle = (base >> 16) & 0xFF;
     gdt[n].base_high = (base >> 24) & 0xFF;
-
+    gdt_ptr.base = (uint64_t)&gdt;
     gdt[n].limit_low = limit & 0xFFFF;
     gdt[n].granularity = (limit >> 16) & 0x0F;
 
@@ -19,11 +19,16 @@ void gdt_set_gate(int n, uint32_t base, uint32_t limit, uint8_t access, uint8_t 
 }
 
 
+
 void gdt_init(void) {
     gdt_ptr.limit = sizeof(gdt) - 1;
-    gdt_ptr.base = (uint32_t)&gdt;
-    gdt_set_gate(0, 0, 0, 0, 0);
-    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);  
-    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);  
+    gdt_ptr.base  = (uint64_t)&gdt;
+
+    gdt_set_gate(0, 0, 0, 0,       0);        
+    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xA0); 
+    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xA0); 
+    gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xA0); 
+    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xA0); 
+
     __asm__ volatile("lgdt (%0)" : : "r" (&gdt_ptr));
 }

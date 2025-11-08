@@ -28,5 +28,6 @@ ramfs_node_t* ramfs_mkdir(const char* path);
 ramfs_node_t* ramfs_create_file(const char* path, const char* data);
 ramfs_node_t* ramfs_read_file(const char* path);
 void ramfs_list_dir(const char* path);
+void* ramfs_read_file_to_memory(const char* path, size_t* size);
 
 #endif

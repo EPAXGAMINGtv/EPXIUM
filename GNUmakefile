@@ -20,6 +20,11 @@ all: $(IMAGE_NAME).iso
 .PHONY: all-hdd
 all-hdd: $(IMAGE_NAME).hdd
 
+.PHONY: userspace
+userspace:
+	$(MAKE) -C userspace
+
+
 .PHONY: run
 run: $(IMAGE_NAME).iso
 	qemu-system-x86_64 \
@@ -75,33 +80,37 @@ kernel: kernel-deps
 	$(MAKE) -C kernel
 
 # Build ISO without iso_root.img
-$(IMAGE_NAME).iso: limine/limine kernel
+$(IMAGE_NAME).iso: limine/limine kernel userspace
 	rm -rf iso_root
 	mkdir -p iso_root/boot
 	cp -v kernel/bin/kernel iso_root/boot/
+	
+	# Copy userspace binaries into /usr (oder gewünschtes Verzeichnis)
+	mkdir -p iso_root/usr
+	cp -v userspace/*.bin iso_root/usr/
+
 	mkdir -p iso_root/boot/limine
 	cp -v limine.conf limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin iso_root/boot/limine/
 	mkdir -p iso_root/EFI/BOOT
 	cp -v limine/BOOTX64.EFI iso_root/EFI/BOOT/
 	cp -v limine/BOOTIA32.EFI iso_root/EFI/BOOT/
 
-	# Copy sysroot directory directly into the iso_root (no FAT32 partition needed)
+	# Copy sysroot if needed
 	sudo mkdir -p /mnt/sysroot
 	sudo cp -r sysroot/* /mnt/sysroot/
-	
-	# Create the ISO image without creating iso_root.img
+
+	# Create ISO image
 	xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
 		-apm-block-size 2048 --efi-boot boot/limine/limine-uefi-cd.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
 		iso_root -o $(IMAGE_NAME).iso
 
-	# Install the bootloader
+	# Install bootloader
 	./limine/limine bios-install $(IMAGE_NAME).iso
 
 	# Clean up
 	rm -rf iso_root
-
 
 $(IMAGE_NAME).hdd: limine/limine kernel
 	rm -f $(IMAGE_NAME).hdd

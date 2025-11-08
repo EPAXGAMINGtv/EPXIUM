@@ -24,6 +24,7 @@ void vmm_free_page(void * addr);
 void * vmm_map_page(void * virt, void * phys,uint64_t flags);
 void vmm_unmap_page(void* virt);
 void vmm_load_page_table(vmm_page_table_t *page_table);
+void* vmm_alloc_pages(size_t count);
 
 //helper functions
 static inline void set_pte(pte_t *entry, uintptr_t phys_addr, uint64_t flags);

@@ -88,3 +88,23 @@ static inline uintptr_t get_phys_addr_from_pte(pte_t *entry) {
 void vmm_load_page_table(vmm_page_table_t *page_table) {
     //place houlder
 }
+
+void* vmm_alloc_pages(size_t count) {
+    if (count == 0) return NULL;
+
+    void* first = vmm_alloc_page();
+    if (!first) return NULL;
+
+    void* last = first;
+    for (size_t i = 1; i < count; i++) {
+        void* page = vmm_alloc_page();
+        if (!page) {
+            for (size_t j = 0; j < i; j++) {
+                vmm_free_page((uint8_t*)first + j * PAGE_SIZE);
+            }
+            return NULL;
+        }
+        last = page;
+    }
+    return first;
+}

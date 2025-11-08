@@ -22,7 +22,7 @@
 #include "kernel/interrupts/tss.h"
 #include "kernel/processes/process.h"
 #include "kernel/fs/ramfs.h"
-
+#include "kernel/kernel_lib/userspace.h"
 
 
 #define SHELL_MAX_INPUT 128  
@@ -50,6 +50,13 @@ volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
 };
+
+__attribute__((used, section(".limine_requests")))
+static struct limine_module_request module_request = {
+    .id = LIMINE_MODULE_REQUEST,
+    .revision = 0
+};
+
 
 
 /*
@@ -276,14 +283,54 @@ void kmalloc_test(){
 }
 
 
+void test_userspace(void) {
+    if (!module_request.response || module_request.response->module_count == 0) {
+        fprint("No modules loaded by bootloader!\n");
+        return;
+    }
+
+    struct limine_file* module = module_request.response->modules[0]; 
+    void* elf_data = module->address;
+    size_t size = module->size;
+
+    fprint("Module loaded, size: ");
+    fprint_uint((uint32_t)size);
+    fprint(" bytes\n");
+
+    const char* ramfs_path = "usr/init.bin";
+    ramfs_create_file(ramfs_path, (const char*)elf_data); 
+    fprint("Module copied to RamFS at /");
+    fprint(ramfs_path);
+    fprint("\n");
+
+    uint64_t entry = *((uint64_t*)((uint8_t*)elf_data + ELF64_ENTRY_OFFSET));
+    userspace_entry_t main_entry = (userspace_entry_t)entry;
+
+    if (entry == 0) {
+        fprint("Error: Invalid entry point\n");
+        return;
+    }
+
+    fprint("Userspace entry found, jumping...\n");
+    if (!entry) {
+        fprint("Error: invalid entry point!\n");
+        return;
+    }
+    fprint("Entry point: ");
+    fprint_uint((uint32_t)entry);
+    fprint("\n");
+
+    userspace_start(main_entry);  
+    fprint("Userspace returned, lol\n");
+}
+
+
 void kernel_init(void){
     fb_init();
     printOK("starting kernel init ");
 
     init_interrupts();
 
-    struct limine_memmap_response *memmap = memmap_request.response;
-    vmm_init(memmap);
     printOK("vmm initialized");
 
     kmalloc_init();  
@@ -295,7 +342,13 @@ void kernel_init(void){
     sleep_s(1);
     fprint("\n");
     printOK("kernel init completet ");
-    sleep_s(5);
+
+    test_userspace();
+    for (int i = 50; i >0; i--) {
+        sleep_s(1);  
+        //fprint_uint((uint32_t)i);  
+        //fprint("\n");
+    }
     clear_screen_lim(framebuffer, COLOR_DARK_GRAY);
     kmalloc_test();  
     framebuffer = framebuffer_request.response->framebuffers[0];
@@ -317,7 +370,7 @@ void kmain(void) {
             fprint("\nA pressed \n");
        } 
         */
-      
+      //__asm__ volatile ("div %0" :: "r"(0));
        __asm__ volatile ("hlt");
     }
 }

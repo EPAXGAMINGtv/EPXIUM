@@ -11,7 +11,7 @@ obj/kernel/main.c.o: src/kernel/main.c src/limine.h \
  src/kernel/mem/umalloc.h src/kernel/mem/kmalloc.h \
  src/kernel/interrupts/drivers/keyboard.h src/kernel/kernel_lib/random.h \
  src/kernel/interrupts/tss.h src/kernel/processes/process.h \
- src/kernel/fs/ramfs.h
+ src/kernel/fs/ramfs.h src/kernel/kernel_lib/userspace.h
 src/limine.h:
 src/kernel/device/display/fb.h:
 src/kernel/device/display/colors.h:
@@ -39,3 +39,4 @@ src/kernel/kernel_lib/random.h:
 src/kernel/interrupts/tss.h:
 src/kernel/processes/process.h:
 src/kernel/fs/ramfs.h:
+src/kernel/kernel_lib/userspace.h:
