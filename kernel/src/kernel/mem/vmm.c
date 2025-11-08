@@ -5,7 +5,6 @@
 static vmm_page_table_t *current_page_table = NULL;
 static uintptr_t kernel_heap_end  = KERNEL_HEAP_START;
 
-//helper function
 void *my_memset(void *ptr, int value, size_t num) {
     unsigned char *p = ptr;
     while (num--) {
@@ -14,7 +13,6 @@ void *my_memset(void *ptr, int value, size_t num) {
     return ptr;
 }
 
-//vmm functions 
 void vmm_init(struct limine_memmap_response* memap){
     fprint("initing vmm/pmm\n");
     fprint("init pmm\n");
@@ -26,51 +24,77 @@ void vmm_init(struct limine_memmap_response* memap){
     fprint("pages were allocated succesfully freeing pages \n");
     pmm_free_page(page1);
     fprint("pages freed from pmm making vmm page table for kernel\n");
-    //kernel page table for kernel 
-    size_t num_pages = 1024;
+
+    size_t entries_per_table = PAGE_SIZE / sizeof(pte_t);
     current_page_table = (vmm_page_table_t*) pmm_alloc_page();
     fprint("making memset for vmm \n");
     my_memset(current_page_table,0,sizeof(vmm_page_table_t));
-    //simple page table for kerbel in fist table
     fprint("making page for kernel only\n");
     current_page_table->entries =(pte_t *)pmm_alloc_page();
     my_memset(current_page_table->entries,0,PAGE_SIZE);
     fprint("was succesfull contining vmm init\n");
     fprint("kernel addres init\n");
 
-    for (size_t i = 0; i < num_pages; i++) {
-        set_pte(&current_page_table->entries[i], i * PAGE_SIZE, 0x3); // Zugriffsrechte: Read/Write
+    for (size_t i = 0; i < entries_per_table; i++) {
+        set_pte(&current_page_table->entries[i], i * PAGE_SIZE, 0x3); 
     }
 }
 
-//method to allocating virtual pages later needed for userspaces lol 
 void *vmm_alloc_page(void){
+    if (!current_page_table) return NULL;
+
     void *phys_addr = pmm_alloc_page();
     if (!phys_addr) return NULL;
+
+    my_memset(phys_addr, 0, PAGE_SIZE);
+
     uintptr_t virt_addr = kernel_heap_end;
     kernel_heap_end += PAGE_SIZE;
-    vmm_map_page((void*)virt_addr,phys_addr,0x3);
-    
+
+    if (vmm_map_page((void*)virt_addr, phys_addr, 0x3) == NULL) {
+        pmm_free_page(phys_addr);
+        return NULL;
+    }
+
     return (void *)virt_addr;
 }
 
-//cleaning up pages 
 void vmm_free_page(void* addr){
-    vmm_unmap_page(addr);
-    pmm_free_page(addr);
+    if (!current_page_table || addr == NULL) return;
+
+    size_t entries_per_table = PAGE_SIZE / sizeof(pte_t);
+    size_t virt_page = (uintptr_t)addr / PAGE_SIZE;
+    if (virt_page >= entries_per_table) return;
+
+    pte_t *entry = &current_page_table->entries[virt_page];
+    uintptr_t phys = get_phys_addr_from_pte(entry);
+    if (phys == 0) return;
+
+    set_pte(entry, 0, 0);
+
+    pmm_free_page((void*)phys);
 }
 
 void* vmm_map_page(void *virt,void * phys,uint64_t flags){
+    if (!current_page_table || virt == NULL || phys == NULL) return NULL;
+
+    size_t entries_per_table = PAGE_SIZE / sizeof(pte_t);
     size_t virt_page = (uintptr_t)virt / PAGE_SIZE;
-    size_t phys_page = (uintptr_t)phys / PAGE_SIZE;
-    set_pte(&current_page_table->entries[virt_page], phys_page * PAGE_SIZE, flags); 
+    if (virt_page >= entries_per_table) return NULL;
+
+    set_pte(&current_page_table->entries[virt_page], (uintptr_t)phys, flags); 
 
     return virt;
 }
 
 
 void vmm_unmap_page(void * virt){
+    if (!current_page_table || virt == NULL) return;
+
+    size_t entries_per_table = PAGE_SIZE / sizeof(pte_t);
     size_t virt_page = (uintptr_t)virt / PAGE_SIZE;
+    if (virt_page >= entries_per_table) return;
+
     set_pte(&current_page_table->entries[virt_page],0,0);
 
     return;
@@ -86,25 +110,58 @@ static inline uintptr_t get_phys_addr_from_pte(pte_t *entry) {
 
 
 void vmm_load_page_table(vmm_page_table_t *page_table) {
-    //place houlder
+    
 }
 
-void* vmm_alloc_pages(size_t count) {
-    if (count == 0) return NULL;
+void* vmm_alloc_user_pages(size_t count) {
+    if (count == 0 || !current_page_table) return NULL;
 
-    void* first = vmm_alloc_page();
-    if (!first) return NULL;
-
-    void* last = first;
-    for (size_t i = 1; i < count; i++) {
-        void* page = vmm_alloc_page();
-        if (!page) {
-            for (size_t j = 0; j < i; j++) {
-                vmm_free_page((uint8_t*)first + j * PAGE_SIZE);
+    void* first_virt = NULL;
+    for (size_t i = 0; i < count; ++i) {
+        void* phys = pmm_alloc_page();
+        if (!phys) {
+            if (first_virt) {
+                for (size_t j = 0; j < i; ++j) {
+                    vmm_free_page((uint8_t*)first_virt + j * PAGE_SIZE);
+                }
             }
             return NULL;
         }
-        last = page;
+        my_memset(phys, 0, PAGE_SIZE);
+
+        uintptr_t virt = kernel_heap_end;
+        kernel_heap_end += PAGE_SIZE;
+
+        if (vmm_map_page((void*)virt, phys, 0x7) == NULL) {
+            pmm_free_page(phys);
+            if (first_virt) {
+                for (size_t j = 0; j < i; ++j) {
+                    vmm_free_page((uint8_t*)first_virt + j * PAGE_SIZE);
+                }
+            }
+            return NULL;
+        }
+
+        if (!first_virt) first_virt = (void*)virt;
     }
-    return first;
+    return first_virt;
+}
+
+void *vmm_alloc_stack(size_t pages) {
+    if (pages == 0 || !current_page_table) return NULL;
+
+    size_t total = pages + 1;
+    void *base = vmm_alloc_user_pages(total);
+    if (!base) return NULL;
+    vmm_unmap_page(base);
+    return (uint8_t*)base + total * PAGE_SIZE;
+}
+
+void vmm_free_pages_region(void *base, size_t count) {
+    if (!base || count == 0 || !current_page_table) return;
+
+    for (size_t i = 0; i < count; ++i) {
+        void *page_virt = (uint8_t*)base + i * PAGE_SIZE;
+        vmm_free_page(page_virt);
+    }
 }

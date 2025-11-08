@@ -36,39 +36,44 @@ void userspace_load(const char* path) {
 void userspace_start(userspace_entry_t entry) {
     if (!entry) return;
 
-    uint64_t stack_base = (uint64_t)vmm_alloc_pages(USER_STACK_PAGES);
-    if (!stack_base) {
-        fprint("userspace_start: failed to allocate stack\n");
-        return;
+    void *stack_top_ptr = vmm_alloc_stack(USER_STACK_PAGES);
+    uintptr_t user_stack;
+
+    if (stack_top_ptr) {
+        user_stack = (uintptr_t)stack_top_ptr;
+    } else {
+        void *stack_base_ptr = vmm_alloc_user_pages(USER_STACK_PAGES);
+        if (!stack_base_ptr) {
+            fprint("userspace_start: failed to allocate stack\n");
+            return;
+        }
+        user_stack = (uintptr_t)stack_base_ptr + (uintptr_t)USER_STACK_PAGES * (uintptr_t)PAGE_SIZE;
     }
 
-    uint64_t user_stack = stack_base + USER_STACK_PAGES * 0x1000;
-    user_stack &= ~0xF; 
+    user_stack &= ~((uintptr_t)0xF);
 
     fprint("Jumping to userspace...\n");
 
-__asm__ volatile (
-   // "cli\n"
-    "mov %[ds16], %%ax\n"
-    "mov %%ax, %%ds\n"
-    "mov %%ax, %%es\n"
-    "mov %%ax, %%fs\n"
-    "mov %%ax, %%gs\n"
-    "mov %[stack64], %%rax\n"
-    "pushq %[ss64]\n"        
-    "pushq %%rax\n"          
-    "pushfq\n"               
-    "orq $0x200, (%%rsp)\n"  
-    "pushq %[cs64]\n"        
-    "pushq %[entry64]\n"     
-    "iretq\n"
-    :
-    : [ds16]   "r"((uint16_t)USER_DS),
-      [ss64]   "r"((uint64_t)USER_DS),
-      [cs64]   "r"((uint64_t)USER_CS),
-      [stack64]"r"(user_stack),
-      [entry64]"r"(entry)
-    : "rax", "memory"
-);
-
+    __asm__ volatile (
+        "mov %[ds16], %%ax\n"
+        "mov %%ax, %%ds\n"
+        "mov %%ax, %%es\n"
+        "mov %%ax, %%fs\n"
+        "mov %%ax, %%gs\n"
+        "mov %[stack64], %%rax\n"
+        "pushq %[ss64]\n"
+        "pushq %%rax\n"
+        "pushfq\n"
+        "orq $0x200, (%%rsp)\n"
+        "pushq %[cs64]\n"
+        "pushq %[entry64]\n"
+        "iretq\n"
+        :
+        : [ds16]   "r"((uint16_t)USER_DS),
+          [ss64]   "r"((uint64_t)USER_DS),
+          [cs64]   "r"((uint64_t)USER_CS),
+          [stack64]"r"(user_stack),
+          [entry64]"r"(entry)
+        : "rax", "memory"
+    );
 }
