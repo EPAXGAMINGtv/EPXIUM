@@ -13,6 +13,8 @@ typedef struct {
 
 extern fprint_t g_printer;
 
+void itoa(int num, char* str, int base);
+
 void init_fprint_global(volatile struct limine_framebuffer* fb, cursor_t* cursor, uint32_t color);
 void fprint(const char* text);
 void fprintcolor(const char* text, uint32_t color);

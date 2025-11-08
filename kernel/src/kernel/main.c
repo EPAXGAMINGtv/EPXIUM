@@ -21,6 +21,8 @@
 #include "kernel/kernel_lib/random.h"
 #include "kernel/interrupts/tss.h"
 #include "kernel/processes/process.h"
+#include "kernel/fs/ramfs.h"
+
 
 
 #define SHELL_MAX_INPUT 128  
@@ -50,7 +52,7 @@ volatile struct limine_memmap_request memmap_request = {
 };
 
 
-
+/*
 static void itoa(size_t value, char* str) {
     int i = 0;
     int negative = 0;
@@ -82,6 +84,7 @@ static void itoa(size_t value, char* str) {
         end--;
     }
 }
+    */
 
 void test_calc(){
     uint32_t num1 = random_u32();
@@ -179,22 +182,50 @@ void fb_init(void){
     clear_screen_lim(framebuffer,COLOR_BLACK);
 }
 
+void init_ramfs_test(){
+    printOK("initing ramfs");
+    ramfs_init();
+
+    fprint("=== ROOT TEST ===\n");
+
+
+    fprint("=== MKDIR /etc ===\n");
+    ramfs_mkdir("/etc");
+
+    fprint("=== LIST ROOT ===\n");
+    ramfs_list_dir("/");
+
+    fprint("=== CREATE FILE ===\n");
+    ramfs_create_file("/etc/hosts", "127.0.0.1 localhost");
+
+    fprint("=== LIST /etc ===\n");
+    ramfs_list_dir("/etc");
+
+    fprint("=== READ FILE ===\n");
+    ramfs_read_file("/etc/hosts");
+
+    printOK("ramfs test done");
+}
 void init_mem(void){
     printOK("initing mem ");
     struct limine_memmap_response *memmap = memmap_request.response;
     vmm_init(memmap);
+    fprint("avalible memory:");
+    fprintcolor_uint32(pmm_get_total_memory_32(memmap),COLOR_GREEN);
+    fprint("\n");
+    printOK("mem init completet ");
 }
 
 
 
-void init_kernel_lib(){
+void init_kernel_lib(void){
     printOK("init random"); 
     fprint("with: ");
     fprint_uint((uint32_t)get_tick_count());
     fprint(" ticks \n");
     random_init(get_tick_count());
     printOK("random init completetet ");
-    fprint("during 500 test calculations in 5 seconds\n");
+    fprint("during 100 test calculations in 5 seconds\n");
 
     for (int i = 5; i >0; i--) {
         sleep_s(1);  
@@ -202,7 +233,7 @@ void init_kernel_lib(){
         fprint("\n");
     }
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 100; i++) {
         test_calc();
     }
 
@@ -248,29 +279,30 @@ void kmalloc_test(){
 void kernel_init(void){
     fb_init();
     printOK("starting kernel init ");
+
     init_interrupts();
-    init_mem();
 
-    int x = 1 / 0;
+    struct limine_memmap_response *memmap = memmap_request.response;
+    vmm_init(memmap);
+    printOK("vmm initialized");
+
+    kmalloc_init();  
+    printOK("kmalloc initialized");
+    init_mem();  
+    init_ramfs_test(); 
     switch_layout(LAYOUT_DE);
-
-    //unessential init
     init_kernel_lib();
-
-    
     sleep_s(1);
     fprint("\n");
     printOK("kernel init completet ");
     sleep_s(5);
-    clear_screen_lim(framebuffer,COLOR_DARK_GRAY);
-    kmalloc_test();
-
-    framebuffer = framebuffer_request.response->framebuffers[0];  
+    clear_screen_lim(framebuffer, COLOR_DARK_GRAY);
+    kmalloc_test();  
+    framebuffer = framebuffer_request.response->framebuffers[0];
     fb_width = framebuffer->width;
     fb_height = framebuffer->height;
-
-    init_cursor(&shell_cursor_struct, fb_width-2, fb_height-10);  
-    shell_cursor = &shell_cursor_struct;  
+    init_cursor(&shell_cursor_struct, fb_width-2, fb_height-10);
+    shell_cursor = &shell_cursor_struct;
     print_logo();
 }
 
@@ -286,6 +318,6 @@ void kmain(void) {
        } 
         */
       
-       __asm__ volatile ("pause");
+       __asm__ volatile ("hlt");
     }
 }
